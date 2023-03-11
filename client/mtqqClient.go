@@ -12,9 +12,9 @@ func newMqttClientOptions(clientId string, connectionUrl string) *mqtt.ClientOpt
 
 	opts.AddBroker(connectionUrl)
 	opts.SetClientID(clientId)
-	opts.SetDefaultPublishHandler(messagePubHandler)
-	opts.OnConnect = connectHandler
-	opts.OnConnectionLost = connectLostHandler
+	opts.SetDefaultPublishHandler(handleReceivedMessage)
+	opts.OnConnect = handleConnect
+	opts.OnConnectionLost = handleConnectionLost
 	return opts
 }
 
@@ -40,16 +40,17 @@ func SubscribeToTopic(client mqtt.Client, topic string) {
 	fmt.Printf("Subscribed to topic: %s\n", topic)
 }
 
-var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("Topic: %s | %s\n", msg.Topic(), msg.Payload())
+// Callback ran on message receive
+func handleReceivedMessage(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
 }
 
 // Callback whic his ran when the client connects to the broker
-var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
+func handleConnect(client mqtt.Client) {
 	fmt.Println("Connected")
 }
 
 // Callback which is ran when the client loses connection to the broker
-var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
-	fmt.Printf("Connect lost: %+v", err)
+func handleConnectionLost(client mqtt.Client, err error) {
+	fmt.Printf("Connection lost due to: %+v", err)
 }
