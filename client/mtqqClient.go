@@ -1,9 +1,13 @@
 package client
 
 import (
-	"fmt"
+	"database/sql"
+	"log"
+	"main/domain"
+	"main/parser"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	_ "github.com/lib/pq"
 )
 
 // Create options for MQTT client
@@ -12,9 +16,8 @@ func newMqttClientOptions(clientId string, connectionUrl string) *mqtt.ClientOpt
 
 	opts.AddBroker(connectionUrl)
 	opts.SetClientID(clientId)
-	opts.SetDefaultPublishHandler(handleReceivedMessage)
-	opts.OnConnect = handleConnect
-	opts.OnConnectionLost = handleConnectionLost
+	opts.OnConnect = handleMqttConnect
+	opts.OnConnectionLost = handleMqttDisconnect
 	return opts
 }
 
@@ -32,25 +35,40 @@ func ConnectToMqttBroker(clientId string, connectionUrl string) mqtt.Client {
 }
 
 // Subscribe client to a topic
-func SubscribeToTopic(client mqtt.Client, topic string) {
+func SubscribeToTopic(client mqtt.Client, topic string, callback mqtt.MessageHandler) {
 	// panics if subscription fails
-	if token := client.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
+	if token := client.Subscribe(topic, 0, callback); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
-	fmt.Printf("Subscribed to topic: %s\n", topic)
+	log.Printf("Subscribed to topic: %s\n", topic)
 }
 
-// Callback ran on message receive
-func handleReceivedMessage(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+func storeBusTelemetry(db *sql.DB, telemetry *domain.BusTelemetry) error {
+	// TODO: implement
+	return nil
+}
+
+// Callback which is ran when a message is received from the broker
+func HandleBusMessage(db *sql.DB) func(client mqtt.Client, msg mqtt.Message) {
+	return func(client mqtt.Client, msg mqtt.Message) {
+		telemetry, err := parser.ParseMessageToBusTelemetry(msg)
+		if err != nil {
+			log.Printf("Failed to parse message: %s\n", err)
+		}
+		err = storeBusTelemetry(db, telemetry)
+		if err != nil {
+			log.Printf("Failed to store bus telemetry: %s\n", err)
+		}
+		log.Printf("Lon: %f; Lat: %f\n", telemetry.Vp.Long, telemetry.Vp.Lat)
+	}
 }
 
 // Callback whic his ran when the client connects to the broker
-func handleConnect(client mqtt.Client) {
-	fmt.Println("Connected")
+func handleMqttConnect(client mqtt.Client) {
+	log.Println("Connected")
 }
 
 // Callback which is ran when the client loses connection to the broker
-func handleConnectionLost(client mqtt.Client, err error) {
-	fmt.Printf("Connection lost due to: %+v", err)
+func handleMqttDisconnect(client mqtt.Client, err error) {
+	log.Printf("Connection lost due to: %+v\n", err)
 }
