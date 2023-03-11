@@ -44,8 +44,8 @@ func SubscribeToTopic(client mqtt.Client, topic string, callback mqtt.MessageHan
 }
 
 func storeBusTelemetry(db *gorm.DB, telemetry *domain.BusTelemetry) error {
-	// TODO: implement
-	return nil
+	err := db.Create(telemetry)
+	return err.Error
 }
 
 // Callback which is ran when a message is received from the broker
@@ -59,7 +59,7 @@ func HandleBusMessage(db *gorm.DB) func(client mqtt.Client, msg mqtt.Message) {
 		if err != nil {
 			log.Printf("Failed to store bus telemetry: %s\n", err)
 		}
-		log.Printf("Lon: %f; Lat: %f\n", telemetry.Vp.Long, telemetry.Vp.Lat)
+		log.Printf("Received message: %v\n", telemetry)
 	}
 }
 
