@@ -1,12 +1,40 @@
 package domain
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
-// Bus information
-// this would be stored in a database
-type Bus struct {
+type BusTelemetry struct {
+	Vp struct {
+		Desi  string    `json:"desi"`
+		Dir   string    `json:"dir"`
+		Oper  int       `json:"oper"`
+		Veh   int       `json:"veh"`
+		Tst   time.Time `json:"tst"`
+		Tsi   int       `json:"tsi"`
+		Spd   float64   `json:"spd"`
+		Hdg   int       `json:"hdg"`
+		Lat   float64   `json:"lat"`
+		Long  float64   `json:"long"`
+		Acc   float64   `json:"acc"`
+		Dl    int       `json:"dl"`
+		Odo   int       `json:"odo"`
+		Drst  int       `json:"drst"`
+		Oday  string    `json:"oday"`
+		Jrn   int       `json:"jrn"`
+		Line  int       `json:"line"`
+		Start string    `json:"start"`
+		Loc   string    `json:"loc"`
+		Stop  any       `json:"stop"`
+		Route string    `json:"route"`
+		Occu  int       `json:"occu"`
+	} `json:"VP"`
+}
+
+// BusTelemetry DTO for API
+type BusDTO struct {
 	Id                  uuid.UUID
 	Number              int
 	Lon                 float64
@@ -15,8 +43,8 @@ type Bus struct {
 	NextStopArrivalTime string
 }
 
-func NewBus(number int, lon, lat float64, nextStop, nextStopArrivalTime string) *Bus {
-	return &Bus{
+func NewBus(number int, lon, lat float64, nextStop, nextStopArrivalTime string) *BusDTO {
+	return &BusDTO{
 		Id:                  uuid.New(),
 		Number:              number,
 		Lon:                 lon,
@@ -44,10 +72,10 @@ func NewGetBusesRequest(lon, lat float64) *GetBusesRequest {
 // Response with nearest buses data
 type GetBusesResponse struct {
 	Id           uuid.UUID
-	NearestBuses []Bus
+	NearestBuses []BusDTO
 }
 
-func NewGetBusesResponse(id uuid.UUID, nearestBuses []Bus) *GetBusesResponse {
+func NewGetBusesResponse(id uuid.UUID, nearestBuses []BusDTO) *GetBusesResponse {
 	return &GetBusesResponse{
 		Id:           id,
 		NearestBuses: nearestBuses,
