@@ -1,13 +1,13 @@
 package client
 
 import (
-	"database/sql"
 	"log"
 	"main/domain"
 	"main/parser"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 // Create options for MQTT client
@@ -43,13 +43,13 @@ func SubscribeToTopic(client mqtt.Client, topic string, callback mqtt.MessageHan
 	log.Printf("Subscribed to topic: %s\n", topic)
 }
 
-func storeBusTelemetry(db *sql.DB, telemetry *domain.BusTelemetry) error {
+func storeBusTelemetry(db *gorm.DB, telemetry *domain.BusTelemetry) error {
 	// TODO: implement
 	return nil
 }
 
 // Callback which is ran when a message is received from the broker
-func HandleBusMessage(db *sql.DB) func(client mqtt.Client, msg mqtt.Message) {
+func HandleBusMessage(db *gorm.DB) func(client mqtt.Client, msg mqtt.Message) {
 	return func(client mqtt.Client, msg mqtt.Message) {
 		telemetry, err := parser.ParseMessageToBusTelemetry(msg)
 		if err != nil {

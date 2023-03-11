@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"flag"
 	"main/api"
 	"main/client"
@@ -44,12 +43,11 @@ func main() {
 	go httpServer.Start()
 
 	<-c
-	cleanUp(mqttClient, db)
+	cleanUp(mqttClient)
 	return
 }
 
 // Disconnect the MQTT client & close the database connection
-func cleanUp(mqttClient mqtt.Client, db *sql.DB) {
+func cleanUp(mqttClient mqtt.Client) {
 	mqttClient.Disconnect(250)
-	api.CloseDB(db)
 }

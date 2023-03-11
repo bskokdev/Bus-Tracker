@@ -1,11 +1,12 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 // Database information
@@ -19,31 +20,16 @@ const (
 	dbname   = "railway"
 )
 
-func ConnectToDB() *sql.DB {
-	psqlInfo := fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname,
-	)
+func ConnectToDB() *gorm.DB {
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", host, user, password, dbname, port)
 
-	db, err := sql.Open("postgres", psqlInfo)
+	// replace this with ORM
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error opening database connection: %v", err)
 	}
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
-	}
-
 	log.Println("Connected to database")
 
 	return db
-}
-
-func CloseDB(db *sql.DB) {
-	err := db.Close()
-	if err != nil {
-		log.Fatalf("Error closing database connection: %v", err)
-	}
-	log.Println("Closed database connection")
 }

@@ -1,21 +1,22 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 type Server struct {
 	address string
-	db      *sql.DB
+	db      *gorm.DB
 }
 
 type Handler = func(http.ResponseWriter, *http.Request)
 
 // Creates server with address localhost:{address} and database connection
-func NewServer(address string, db *sql.DB) *Server {
+func NewServer(address string, db *gorm.DB) *Server {
 	return &Server{
 		address: fmt.Sprintf(":%s", address),
 		db:      db,
@@ -30,7 +31,7 @@ func (s *Server) Start() error {
 	return http.ListenAndServe(s.address, nil)
 }
 
-func handleGetNearestBuses(db *sql.DB) Handler {
+func handleGetNearestBuses(db *gorm.DB) Handler {
 	// TODO: query the database for the closest buses and save in a variable (slice)
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("List of closest buses"))
