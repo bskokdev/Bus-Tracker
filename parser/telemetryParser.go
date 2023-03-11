@@ -9,12 +9,14 @@ import (
 
 // Converts MQTT message to BusTelemetry struct
 func ParseMessageToBusTelemetry(msg mqtt.Message) (*domain.BusTelemetry, error) {
-	var telemetry domain.BusTelemetry
-	err := json.Unmarshal(msg.Payload(), &telemetry)
+	// parse JSON to Message struct
+	var mess domain.Message
+	err := json.Unmarshal(msg.Payload(), &mess)
 	if err != nil {
 		return nil, err
 	}
-	return &telemetry, nil
+	// return BusTelemetry struct from Message struct
+	return &mess.BusTelemetry, nil
 }
 
 // Converts BusTelemetry struct to BusDTO struct

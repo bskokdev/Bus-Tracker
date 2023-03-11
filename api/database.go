@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"log"
+	"main/domain"
 
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
@@ -21,8 +22,11 @@ const (
 )
 
 func ConnectToDB() *gorm.DB {
+	// connection string for GORM PostgreSQL driver
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", host, user, password, dbname, port)
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+		host, user, password, dbname, port,
+	)
 
 	// replace this with ORM
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -30,6 +34,7 @@ func ConnectToDB() *gorm.DB {
 		log.Fatalf("Error opening database connection: %v", err)
 	}
 	log.Println("Connected to database")
+	db.AutoMigrate(&domain.BusTelemetry{})
 
 	return db
 }
