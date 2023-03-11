@@ -13,7 +13,7 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	// Create a new MQTT client and subscribe to the topic
-	mqttClient := client.ConnetToMqttBroker("abx-trans", "mqtts://mqtt.hsl.fi:8883")
+	mqttClient := client.ConnectToMqttBroker("abx-trans", "mqtts://mqtt.hsl.fi:8883")
 	client.SubscribeToTopic(mqttClient, "/hfp/v2/journey/ongoing/vp/bus/#")
 
 	<-c

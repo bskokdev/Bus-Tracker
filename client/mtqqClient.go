@@ -7,7 +7,7 @@ import (
 )
 
 // Create options for MQTT client
-func newTransportMqttOptions(clientId string, connectionUrl string) *mqtt.ClientOptions {
+func newMqttClientOptions(clientId string, connectionUrl string) *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
 
 	opts.AddBroker(connectionUrl)
@@ -19,8 +19,8 @@ func newTransportMqttOptions(clientId string, connectionUrl string) *mqtt.Client
 }
 
 // Create a new MQTT client with the given options and return it
-func ConnetToMqttBroker(clientId string, connectionUrl string) mqtt.Client {
-	mqttClientOpts := newTransportMqttOptions(clientId, connectionUrl)
+func ConnectToMqttBroker(clientId string, connectionUrl string) mqtt.Client {
+	mqttClientOpts := newMqttClientOptions(clientId, connectionUrl)
 	mqttClient := mqtt.NewClient(mqttClientOpts)
 
 	// panics if connection fails
