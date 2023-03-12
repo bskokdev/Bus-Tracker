@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"main/api"
 	"main/client"
 	"os"
@@ -31,11 +32,19 @@ func main() {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
 	// create a new database connection
+	// Connection closes when the program exits
 	db := api.ConnectToDB()
 
 	// Create a new MQTT client and subscribe to the topic
-	mqttClient := client.ConnectToMqttBroker("abx-trans", MQTT_BROKER_URL)
-	client.SubscribeToTopic(mqttClient, SUB_TOPIC, client.HandleBusMessage(db))
+	mqttClient, err := client.ConnectToMqttBroker("abx-trans", MQTT_BROKER_URL)
+	if err != nil {
+		log.Fatalf("Error connecting to MQTT broker: %v", err)
+	}
+	// Subscribe to the topic
+	err = client.SubscribeToTopic(mqttClient, SUB_TOPIC, client.HandleBusMessage(db))
+	if err != nil {
+		log.Fatalf("Error subscribing to topic: %v", err)
+	}
 
 	// Start the HTTP server in a separate goroutine
 	httpListenAddress := getHttpListenAddress()
@@ -47,7 +56,8 @@ func main() {
 	return
 }
 
-// Disconnect the MQTT client & close the database connection
+// Disconnect the MQTT client and unsubscribe from the topic
 func cleanUp(mqttClient mqtt.Client) {
 	mqttClient.Disconnect(250)
+	mqttClient.Unsubscribe(SUB_TOPIC)
 }
