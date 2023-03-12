@@ -21,6 +21,7 @@ const (
 	dbname   = "railway"
 )
 
+// ConnectToDB connects to the database and returns a pointer to the database connection
 func ConnectToDB() *gorm.DB {
 	// connection string for GORM PostgreSQL driver
 	dsn := fmt.Sprintf(
@@ -28,12 +29,14 @@ func ConnectToDB() *gorm.DB {
 		host, user, password, dbname, port,
 	)
 
-	// replace this with ORM
+	// Open database connection
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error opening database connection: %v", err)
 	}
 	log.Println("Connected to database")
+
+	// Auto migrate the schema
 	db.AutoMigrate(&domain.BusTelemetry{})
 
 	return db
