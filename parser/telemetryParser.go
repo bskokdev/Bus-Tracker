@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"encoding/json"
+	"log"
 	"main/domain"
 	"strconv"
 	"strings"
@@ -12,9 +14,17 @@ import (
 // Converts MQTT message to BusTelemetry struct
 func ParseMessageToBusTelemetry(msg mqtt.Message) (*domain.BusTelemetry, error) {
 	var telemetry domain.BusTelemetry
-	// parse msg topic to get topic values
+	var payload domain.BusTelemetryPayload
+
 	topicParts := strings.Split(msg.Topic(), "/")
 
+	// Unpack payload into BusTelemetryPayload struct
+	err := json.Unmarshal(msg.Payload(), &payload)
+	if err != nil {
+		log.Printf("Failed to unmarshal message: %s\n", err)
+	}
+
+	// parse msg topic to get topic values
 	telemetry.ID = uuid.New()
 	telemetry.Prefix = topicParts[1]
 	telemetry.Version = topicParts[2]
@@ -22,44 +32,33 @@ func ParseMessageToBusTelemetry(msg mqtt.Message) (*domain.BusTelemetry, error) 
 	telemetry.TemporalType = topicParts[4]
 	telemetry.EventType = topicParts[5]
 	telemetry.TransportMode = topicParts[6]
-	operatorId, err := strconv.Atoi(topicParts[7])
-	if err == nil {
-		telemetry.OperatorId = int(operatorId)
-	}
-	vehicleNumber, err := strconv.Atoi(topicParts[8])
-	if err == nil {
-		telemetry.VehicleNumber = int(vehicleNumber)
-	}
-	routeId, err := strconv.Atoi(topicParts[9])
-	if err == nil {
-		telemetry.RouteId = int(routeId)
-	}
-	directionId, err := strconv.Atoi(topicParts[10])
-	if err == nil {
-		telemetry.DirectionId = int(directionId)
-	}
+	telemetry.OperatorId, _ = strconv.Atoi(topicParts[7])
+	telemetry.VehicleNumber, _ = strconv.Atoi(topicParts[8])
+	telemetry.RouteId, _ = strconv.Atoi(topicParts[9])
+	telemetry.DirectionId, _ = strconv.Atoi(topicParts[10])
 	telemetry.Headsign = topicParts[11]
 	telemetry.StartTime = topicParts[12]
-	nextStop, err := strconv.Atoi(topicParts[13])
-	if err == nil {
-		telemetry.NextStop = int(nextStop)
-	}
-	geohashLevel, err := strconv.Atoi(topicParts[14])
-	if err == nil {
-		telemetry.GeohashLevel = int(geohashLevel)
-	}
-	telemetry.Geohash = topicParts[15]
-	sid, err := strconv.Atoi(topicParts[16])
-	if err == nil {
-		telemetry.Sid = int(sid)
-	}
+	telemetry.NextStop, _ = strconv.Atoi(topicParts[13])
+
+	// lat & lon are in payload
+	telemetry.Lat, telemetry.Lon = getLatLonFromPayload(payload)
 
 	// return BusTelemetry struct
 	return &telemetry, nil
 }
 
+// Extracts lat & lon from telemetry payload
+func getLatLonFromPayload(payload domain.BusTelemetryPayload) (float64, float64) {
+	return payload.Vp.Lat, payload.Vp.Lon
+}
+
 // Converts BusTelemetry struct to BusDTO struct
 func ParseBusTelemetryToBusDTO(telemetry *domain.BusTelemetry) *domain.BusDTO {
-	// TODO: implement & check if needed
-	return nil
+	return &domain.BusDTO{
+		Id:       uuid.New(),
+		RouteId:  telemetry.RouteId,
+		HeadSign: telemetry.Headsign,
+		Lat:      telemetry.Lat,
+		Lon:      telemetry.Lon,
+	}
 }
