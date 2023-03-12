@@ -22,30 +22,32 @@ func newMqttClientOptions(clientId string, connectionUrl string) *mqtt.ClientOpt
 }
 
 // Create a new MQTT client with the given options and return it
-func ConnectToMqttBroker(clientId string, connectionUrl string) mqtt.Client {
+func ConnectToMqttBroker(clientId string, connectionUrl string) (mqtt.Client, error) {
 	mqttClientOpts := newMqttClientOptions(clientId, connectionUrl)
 	mqttClient := mqtt.NewClient(mqttClientOpts)
 
-	// panics if connection fails
+	// if connection fails, return error
 	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
+		return nil, token.Error()
 	}
 
-	return mqttClient
+	return mqttClient, nil
 }
 
 // Subscribe client to a topic
-func SubscribeToTopic(client mqtt.Client, topic string, callback mqtt.MessageHandler) {
-	// panics if subscription fails
+func SubscribeToTopic(client mqtt.Client, topic string, callback mqtt.MessageHandler) error {
+	// return error if subscription fails
 	if token := client.Subscribe(topic, 0, callback); token.Wait() && token.Error() != nil {
-		panic(token.Error())
+		return token.Error()
 	}
 	log.Printf("Subscribed to topic: %s\n", topic)
+	return nil // no error
 }
 
+// Saves the bus telemetry to the database using GORM
 func storeBusTelemetry(db *gorm.DB, telemetry *domain.BusTelemetry) error {
-	err := db.Create(telemetry)
-	return err.Error
+	err := db.Create(telemetry).Error
+	return err
 }
 
 // Callback which is ran when a message is received from the broker
@@ -59,7 +61,7 @@ func HandleBusMessage(db *gorm.DB) func(client mqtt.Client, msg mqtt.Message) {
 		if err != nil {
 			log.Printf("Failed to store bus telemetry: %s\n", err)
 		}
-		log.Printf("Received topic: %v, payload: %v\n", msg.Topic(), telemetry)
+		log.Printf("Received telemetry: %v,\n", telemetry)
 	}
 }
 
