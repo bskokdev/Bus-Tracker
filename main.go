@@ -46,7 +46,7 @@ func main() {
 		log.Fatalf("Error subscribing to topic: %v", err)
 	}
 
-	// Start the HTTP server in a separate goroutine
+	// Start the HTTP server in a separate goroutine (similiar to a thread)
 	httpListenAddress := getHttpListenAddress()
 	httpServer := api.NewServer(httpListenAddress, db)
 	go httpServer.Start()
