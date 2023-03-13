@@ -11,6 +11,7 @@ import (
 )
 
 // Create options for MQTT client
+// Returns a pointer to the options
 func newMqttClientOptions(clientId string, connectionUrl string) *mqtt.ClientOptions {
 	opts := mqtt.NewClientOptions()
 
@@ -22,7 +23,8 @@ func newMqttClientOptions(clientId string, connectionUrl string) *mqtt.ClientOpt
 	return opts
 }
 
-// Create a new MQTT client with the given options and return it
+// Connects to the MQTT broker at the given URL
+// Returns a pointer to the client and an error
 func ConnectToMqttBroker(clientId string, connectionUrl string) (mqtt.Client, error) {
 	mqttClientOpts := newMqttClientOptions(clientId, connectionUrl)
 	mqttClient := mqtt.NewClient(mqttClientOpts)
@@ -36,6 +38,8 @@ func ConnectToMqttBroker(clientId string, connectionUrl string) (mqtt.Client, er
 }
 
 // Subscribe client to a topic
+// Runs the callback function when a message is received
+// Returns an error if subscription fails
 func SubscribeToTopic(client mqtt.Client, topic string, callback mqtt.MessageHandler) error {
 	// return error if subscription fails
 	if token := client.Subscribe(topic, 0, callback); token.Wait() && token.Error() != nil {
@@ -46,6 +50,7 @@ func SubscribeToTopic(client mqtt.Client, topic string, callback mqtt.MessageHan
 }
 
 // Saves the bus telemetry to the database using GORM
+// Returns an error if saving fails or nil if saving succeeds
 func storeBusTelemetry(db *gorm.DB, telemetry *domain.BusTelemetry) error {
 	err := db.Create(telemetry).Error
 	return err
@@ -67,11 +72,13 @@ func HandleBusMessage(db *gorm.DB) func(client mqtt.Client, msg mqtt.Message) {
 }
 
 // Callback whic his ran when the client connects to the broker
+// Prints a message on connection success
 func handleMqttConnect(client mqtt.Client) {
 	log.Println("Connected")
 }
 
 // Callback which is ran when the client loses connection to the broker
+// Prints the error on connection loss
 func handleMqttDisconnect(client mqtt.Client, err error) {
 	log.Printf("Connection lost due to: %+v\n", err)
 }
