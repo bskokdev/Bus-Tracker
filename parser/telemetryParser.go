@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"main/domain"
+	"main/util"
 	"strconv"
 	"strings"
 
@@ -41,24 +42,26 @@ func ParseMessageToBusTelemetry(msg mqtt.Message) (*domain.BusTelemetry, error) 
 	telemetry.NextStop, _ = strconv.Atoi(topicParts[13])
 
 	// lat & lon are in payload
-	telemetry.Lat, telemetry.Lon = getLatLonFromPayload(payload)
+	telemetry.Lat, telemetry.Lon = payload.Vp.Lat, payload.Vp.Lon
 
 	// return BusTelemetry struct
 	return &telemetry, nil
 }
 
-// Extracts lat & lon from telemetry payload
-func getLatLonFromPayload(payload domain.BusTelemetryPayload) (float64, float64) {
-	return payload.Vp.Lat, payload.Vp.Lon
-}
-
-// Converts BusTelemetry struct to BusDTO struct
-func ParseBusTelemetryToBusDTO(telemetry *domain.BusTelemetry) *domain.BusDTO {
-	return &domain.BusDTO{
+// Function to convert BusTelemetry to BusDTO and calculate distance from user
+func NewBusDTOFromTelemetry(telemetry domain.BusTelemetry, userLat, userLon float64) domain.BusDTO {
+	return domain.BusDTO{
 		Id:       uuid.New(),
 		RouteId:  telemetry.RouteId,
 		HeadSign: telemetry.Headsign,
+		NextStop: telemetry.NextStop,
 		Lat:      telemetry.Lat,
 		Lon:      telemetry.Lon,
+		DistanceFromUser: util.GetDistanceInKm(
+			telemetry.Lat,
+			telemetry.Lon,
+			userLat,
+			userLon,
+		),
 	}
 }
