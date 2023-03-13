@@ -8,23 +8,18 @@ import (
 	"main/parser"
 	"main/util"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"gorm.io/gorm"
 )
 
-// default values for pagination
-var (
-	pageSize int = 10
-	page     int = 1
-)
-
+// Struct representing the HTTP Server
+// Contains address and database connection
 type Server struct {
 	address string
 	db      *gorm.DB
 }
-
-type Handler = func(http.ResponseWriter, *http.Request)
 
 // Creates server with address localhost:{address} and database connection
 func NewServer(address string, db *gorm.DB) *Server {
@@ -33,6 +28,9 @@ func NewServer(address string, db *gorm.DB) *Server {
 		db:      db,
 	}
 }
+
+// Handler is a function that handles HTTP requests
+type Handler = func(http.ResponseWriter, *http.Request)
 
 // Start starts the HTTP server and listens for requests
 func (s *Server) Start() error {
@@ -44,12 +42,27 @@ func (s *Server) Start() error {
 	return http.ListenAndServe(s.address, nil)
 }
 
+// Function to get a page of given size of bus telemetries from the database
+func getTelemetriesForPage(db *gorm.DB, page, pageSize int, orderField string, telemetries *[]domain.BusTelemetry) error {
+	offset := util.GetPageOffset(page, pageSize)
+	res := db.Limit(pageSize).Offset(offset).Order(orderField).Find(&telemetries)
+	return res.Error // returns nil if no error
+}
+
+// ----------------------------
+// ROUTE HANDLERS
+// ----------------------------
+
 // Function to handle GET requests to /api/v1/telemetries
 // Endpoint accepts query parameters page and pageSize
 // Returns all telemetries from the database
 // example: http://{host}:{port}/api/v1/telemetries?page=1&pageSize=10
 func handleGetAllTelemetries(db *gorm.DB) Handler {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("GET /api/v1/telemetries")
+		// default page size & page
+		pageSize := 10
+		page := 1
 		// Get the page number from the query parameters
 		pageParam := r.URL.Query().Get("page")
 		if pageParam != "" {
@@ -62,21 +75,19 @@ func handleGetAllTelemetries(db *gorm.DB) Handler {
 			pageSize, _ = strconv.Atoi(pageSizeParam)
 		}
 
-		offset := util.GetPageOffset(page, pageSize)
-
-		var telemetries []domain.BusTelemetry
-		res := db.Limit(pageSize).Offset(offset).Find(&telemetries)
-		if res.Error != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(res.Error.Error()))
+		telemetries := make([]domain.BusTelemetry, pageSize)
+		err := getTelemetriesForPage(db, page, pageSize, "created_at", &telemetries)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("Error getting telemetries: %v", err)
 			return
 		}
 
 		// Parse telemetries to JSON
 		jsonData, err := json.Marshal(telemetries)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("Error while parsing telemetries to JSON: %s", err.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -86,39 +97,43 @@ func handleGetAllTelemetries(db *gorm.DB) Handler {
 
 // Function to handle GET requests to /api/v1/buses/nearest
 // Endpoint accepts query parameters lat and lon and page
-// pageSize is fixed via default global variable
-// Returns the 10 closest buses to the user
+// Returns the 20 nearest buses away from the users' location
 func handleGetNearestBuses(db *gorm.DB) Handler {
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("GET /api/v1/buses/nearest")
+		// default page size & page
+		pageSize := 20
+		page := 1
 		// get lon and lat from query parameters and cast to f64
-		// this would be the user's location
+		// THIS WOULD BE THE USER'S LOCATION
 		lat, _ := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
 		lon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
 
 		// get page of bus telemetries from the database
-		telemetries := []domain.BusTelemetry{}
-		offset := util.GetPageOffset(page, pageSize)
-		res := db.Limit(5 * pageSize).Offset(offset).Find(&telemetries)
-		if res.Error != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(res.Error.Error()))
+		telemetries := make([]domain.BusTelemetry, pageSize)
+		err := getTelemetriesForPage(db, page, pageSize, "created_at", &telemetries)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("Error getting telemetries: %v", err)
 			return
 		}
 
 		// Parse telemetries to BusDTOs
-		buses := []domain.BusDTO{}
+		buses := make([]domain.BusDTO, 0, pageSize)
 		for _, telemetry := range telemetries {
-			buses = append(
-				buses,
-				parser.NewBusDTOFromTelemetry(telemetry, lat, lon),
-			)
+			buses = append(buses, parser.NewBusDTOFromTelemetry(telemetry, lat, lon))
 		}
+
+		// sort buses by distance from user
+		sort.Slice(buses, func(i, j int) bool {
+			return buses[i].DistanceFromUser < buses[j].DistanceFromUser
+		})
 
 		// Parse buses to JSON and return
 		jsonData, err := json.Marshal(buses)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("Error while parsing to JSON: %s", err.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
