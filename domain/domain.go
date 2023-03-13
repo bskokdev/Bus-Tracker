@@ -58,7 +58,7 @@ type BusTelemetryPayload struct {
 
 // BusTelemetry DTO for API
 type BusDTO struct {
-	Id               uuid.UUID
+	TelemetryId      uuid.UUID
 	RouteId          int
 	HeadSign         string
 	NextStop         int

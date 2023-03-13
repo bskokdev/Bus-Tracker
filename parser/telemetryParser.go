@@ -51,12 +51,12 @@ func ParseMessageToBusTelemetry(msg mqtt.Message) (*domain.BusTelemetry, error) 
 // Function to convert BusTelemetry to BusDTO and calculate distance from user
 func NewBusDTOFromTelemetry(telemetry domain.BusTelemetry, userLat, userLon float64) domain.BusDTO {
 	return domain.BusDTO{
-		Id:       uuid.New(),
-		RouteId:  telemetry.RouteId,
-		HeadSign: telemetry.Headsign,
-		NextStop: telemetry.NextStop,
-		Lat:      telemetry.Lat,
-		Lon:      telemetry.Lon,
+		TelemetryId: telemetry.ID,
+		RouteId:     telemetry.RouteId,
+		HeadSign:    telemetry.Headsign,
+		NextStop:    telemetry.NextStop,
+		Lat:         telemetry.Lat,
+		Lon:         telemetry.Lon,
 		DistanceFromUser: util.GetDistanceInKm(
 			telemetry.Lat,
 			telemetry.Lon,
