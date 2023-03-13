@@ -66,8 +66,9 @@ func HandleBusMessage(db *gorm.DB) func(client mqtt.Client, msg mqtt.Message) {
 		err = storeBusTelemetry(db, telemetry)
 		if err != nil {
 			log.Printf("Failed to store bus telemetry: %s\n", err)
+		} else {
+			log.Printf("Received telemetry: %v,\n", *telemetry)
 		}
-		log.Printf("Received telemetry: %v,\n", *telemetry)
 	}
 }
 
