@@ -108,7 +108,10 @@ func handleGetNearestBuses(db *gorm.DB) Handler {
 		// Parse telemetries to BusDTOs
 		buses := []domain.BusDTO{}
 		for _, telemetry := range telemetries {
-			buses = append(buses, parser.NewBusDTOFromTelemetry(telemetry, lat, lon))
+			buses = append(
+				buses,
+				parser.NewBusDTOFromTelemetry(telemetry, lat, lon),
+			)
 		}
 
 		// Parse buses to JSON and return

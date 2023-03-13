@@ -21,7 +21,8 @@ const (
 	dbname   = "railway"
 )
 
-// ConnectToDB connects to the database and returns a pointer to the database connection
+// ConnectToDB connects to the database
+// Returns a pointer to the database connection
 func ConnectToDB() *gorm.DB {
 	// connection string for GORM PostgreSQL driver
 	dsn := fmt.Sprintf(

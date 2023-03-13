@@ -42,7 +42,11 @@ func main() {
 		log.Fatalf("Error connecting to MQTT broker: %v", err)
 	}
 	// Subscribe to the topic
-	err = client.SubscribeToTopic(mqttClient, SUB_TOPIC, client.HandleBusMessage(db))
+	err = client.SubscribeToTopic(
+		mqttClient,
+		SUB_TOPIC,
+		client.HandleBusMessage(db),
+	)
 	if err != nil {
 		log.Fatalf("Error subscribing to topic: %v", err)
 	}
