@@ -19,7 +19,7 @@ const (
 )
 
 // Get the HTTP listen address from the command line arguments
-// example: go run main.go -listen 8080
+// example: go run main.go --listen 8080
 func getHttpListenAddress() string {
 	httpListenAddress := flag.String("listen", "8080", "HTTP listen address")
 	flag.Parse()

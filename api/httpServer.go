@@ -6,6 +6,7 @@ import (
 	"log"
 	"main/domain"
 	"net/http"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -36,17 +37,37 @@ func (s *Server) Start() error {
 }
 
 // Function to handle GET requests to /api/v1/telemetries
+// Endpoint accepts query parameters page and pageSize
 // Returns all telemetries from the database
+// example: http://{host}:{port}/api/v1/telemetries?page=1&pageSize=10
 func handleGetAllTelemetries(db *gorm.DB) Handler {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: add pagination
+		pageSize := 10
+		page := 1
+
+		// Get the page number from the query parameters
+		pageParam := r.URL.Query().Get("page")
+		if pageParam != "" {
+			page, _ = strconv.Atoi(pageParam)
+		}
+
+		// Get the page size from the query parameters
+		pageSizeParam := r.URL.Query().Get("pageSize")
+		if pageSizeParam != "" {
+			pageSize, _ = strconv.Atoi(pageSizeParam)
+		}
+
+		offset := (page - 1) * pageSize
+
 		var telemetries []domain.BusTelemetry
-		res := db.Limit(10).Find(&telemetries)
+		res := db.Limit(pageSize).Offset(offset).Find(&telemetries)
 		if res.Error != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(res.Error.Error()))
 			return
 		}
+
+		// Parse to JSON
 		jsonData, err := json.Marshal(telemetries)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -60,6 +81,9 @@ func handleGetAllTelemetries(db *gorm.DB) Handler {
 
 func handleGetNearestBuses(db *gorm.DB) Handler {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// get lon and lat from query parameters
+		// lon := r.URL.Query().Get("lon")
+
 		w.Write([]byte("List of closest buses"))
 	}
 }

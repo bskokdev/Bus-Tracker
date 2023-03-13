@@ -61,19 +61,19 @@ type BusDTO struct {
 	Id       uuid.UUID
 	RouteId  int
 	HeadSign string
-	NextStop string
+	NextStop int
 	Lat      float64
 	Lon      float64
 }
 
-func NewBusDTO(number int, lon, lat float64, nextStop, nextStopArrivalTime string) *BusDTO {
+func NewBusDTO(routeId, nextStop int, headSign string, lat, lon float64) *BusDTO {
 	return &BusDTO{
-		Id:                  uuid.New(),
-		Number:              number,
-		Lon:                 lon,
-		Lat:                 lat,
-		NextStop:            nextStop,
-		NextStopArrivalTime: nextStopArrivalTime,
+		Id:       uuid.New(),
+		RouteId:  routeId,
+		HeadSign: headSign,
+		NextStop: nextStop,
+		Lat:      lat,
+		Lon:      lon,
 	}
 }
 

@@ -16,6 +16,7 @@ func newMqttClientOptions(clientId string, connectionUrl string) *mqtt.ClientOpt
 
 	opts.AddBroker(connectionUrl)
 	opts.SetClientID(clientId)
+	opts.SetKeepAlive(60)
 	opts.OnConnect = handleMqttConnect
 	opts.OnConnectionLost = handleMqttDisconnect
 	return opts
