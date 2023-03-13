@@ -58,49 +58,11 @@ type BusTelemetryPayload struct {
 
 // BusTelemetry DTO for API
 type BusDTO struct {
-	Id       uuid.UUID
-	RouteId  int
-	HeadSign string
-	NextStop int
-	Lat      float64
-	Lon      float64
-}
-
-func NewBusDTO(routeId, nextStop int, headSign string, lat, lon float64) *BusDTO {
-	return &BusDTO{
-		Id:       uuid.New(),
-		RouteId:  routeId,
-		HeadSign: headSign,
-		NextStop: nextStop,
-		Lat:      lat,
-		Lon:      lon,
-	}
-}
-
-// Request to get the nearest buses
-type GetBusesRequest struct {
-	Id  uuid.UUID
-	Lon float64
-	Lat float64
-}
-
-func NewGetBusesRequest(lon, lat float64) *GetBusesRequest {
-	return &GetBusesRequest{
-		Id:  uuid.New(),
-		Lon: lon,
-		Lat: lat,
-	}
-}
-
-// Response with nearest buses data
-type GetBusesResponse struct {
-	Id           uuid.UUID
-	NearestBuses []BusDTO
-}
-
-func NewGetBusesResponse(id uuid.UUID, nearestBuses []BusDTO) *GetBusesResponse {
-	return &GetBusesResponse{
-		Id:           id,
-		NearestBuses: nearestBuses,
-	}
+	Id               uuid.UUID
+	RouteId          int
+	HeadSign         string
+	NextStop         int
+	Lat              float64
+	Lon              float64
+	DistanceFromUser float64
 }
