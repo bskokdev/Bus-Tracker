@@ -3,10 +3,12 @@ package parser
 import (
 	"encoding/json"
 	"log"
-	"main/domain"
-	"main/util"
+
 	"strconv"
 	"strings"
+
+	domain "github.com/skokcmd/Abax-transport/domain"
+	util "github.com/skokcmd/Abax-transport/util"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"

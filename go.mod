@@ -1,4 +1,4 @@
-module main
+module github.com/skokcmd/Abax-transport
 
 go 1.19
 

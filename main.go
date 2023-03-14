@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"log"
-	"main/api"
-	"main/client"
 	"os"
 	"os/signal"
 	"syscall"
+
+	api "github.com/skokcmd/Abax-transport/api"
+	client "github.com/skokcmd/Abax-transport/client"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )

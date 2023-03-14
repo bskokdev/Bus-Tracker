@@ -3,7 +3,8 @@ package api
 import (
 	"fmt"
 	"log"
-	"main/domain"
+
+	domain "github.com/skokcmd/Abax-transport/domain"
 
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"

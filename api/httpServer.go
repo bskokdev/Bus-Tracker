@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"main/domain"
-	"main/parser"
-	"main/util"
 	"net/http"
 	"sort"
 	"strconv"
+
+	domain "github.com/skokcmd/Abax-transport/domain"
+	parser "github.com/skokcmd/Abax-transport/parser"
+	util "github.com/skokcmd/Abax-transport/util"
 
 	"gorm.io/gorm"
 )

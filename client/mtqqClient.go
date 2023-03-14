@@ -2,11 +2,11 @@ package client
 
 import (
 	"log"
-	"main/domain"
-	"main/parser"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	_ "github.com/lib/pq"
+	domain "github.com/skokcmd/Abax-transport/domain"
+	parser "github.com/skokcmd/Abax-transport/parser"
 	"gorm.io/gorm"
 )
 
