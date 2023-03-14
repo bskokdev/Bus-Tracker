@@ -3,28 +3,31 @@ package api
 import (
 	"fmt"
 	"log"
+	"os"
 
 	domain "github.com/skokcmd/Abax-transport/domain"
 
+	env "github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-// Database information
-// JUST FOR TESTING
-// TODO: move this to .env file !!!
-const (
-	host     = "containers-us-west-23.railway.app"
-	port     = 7129
-	user     = "postgres"
-	password = "Az3TTvjEbxlX3IAhcPJM"
-	dbname   = "railway"
-)
-
 // ConnectToDB connects to the database
 // Returns a pointer to the database connection
 func ConnectToDB() *gorm.DB {
+	err := env.Load()
+	// Database information from environment variables
+	var (
+		host     = os.Getenv("DB_HOST")
+		port     = 5432
+		user     = os.Getenv("DB_USER")
+		password = os.Getenv("DB_PASSWORD")
+		dbname   = os.Getenv("DB_NAME")
+	)
+	if err != nil {
+		log.Fatalf("Error loading environment variables: %v", err)
+	}
 	// connection string for GORM PostgreSQL driver
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
