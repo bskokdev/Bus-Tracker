@@ -76,7 +76,7 @@ func handleGetAllTelemetries(db *gorm.DB) Handler {
 		}
 
 		telemetries := make([]domain.BusTelemetry, pageSize)
-		err := getTelemetriesForPage(db, page, pageSize, "created_at", &telemetries)
+		err := getTelemetriesForPage(db, page, pageSize, "created_at desc", &telemetries)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Printf("Error getting telemetries: %v", err)
@@ -111,7 +111,7 @@ func handleGetNearestBuses(db *gorm.DB) Handler {
 
 		// get page of bus telemetries from the database
 		telemetries := make([]domain.BusTelemetry, pageSize)
-		err := getTelemetriesForPage(db, page, pageSize, "created_at", &telemetries)
+		err := getTelemetriesForPage(db, page, pageSize, "created_at desc", &telemetries)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Printf("Error getting telemetries: %v", err)
