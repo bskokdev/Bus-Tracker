@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  # API image
+  telemetry-api:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - ${HTTP_PORT}:${HTTP_PORT}
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      telemetry-database:
+        condition: service_healthy
+  # Database image
+  telemetry-database:
+    image: postgres:alpine
+    env_file:
+      - .env
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      retries: 10
+      timeout: 5s
+volumes:
+  pgdata:
