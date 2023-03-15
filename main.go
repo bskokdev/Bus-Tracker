@@ -1,12 +1,13 @@
 package main
 
 import (
-	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	env "github.com/joho/godotenv"
 	api "github.com/skokcmd/Abax-transport/api"
 	client "github.com/skokcmd/Abax-transport/client"
 
@@ -19,13 +20,13 @@ const (
 	SUB_TOPIC       = "/hfp/v2/journey/ongoing/vp/bus/#"
 )
 
-// Get the HTTP listen address from the command line arguments
-// Default value is 8080
-// example: go run main.go --listen 3000
-func getHttpListenAddress() string {
-	httpListenAddress := flag.String("listen", "8080", "HTTP listen address")
-	flag.Parse()
-	return *httpListenAddress
+// Function to get the HTTP port from the environment variables
+func getHttpPort() string {
+	err := env.Load()
+	if err != nil {
+		log.Fatalf("Error loading environment variables: %v", err)
+	}
+	return os.Getenv("HTTP_PORT")
 }
 
 func main() {
@@ -53,7 +54,7 @@ func main() {
 	}
 
 	// Start the HTTP server in a separate goroutine (similiar to a thread)
-	httpListenAddress := getHttpListenAddress()
+	httpListenAddress := fmt.Sprintf("0.0.0.0:%s", getHttpPort())
 	httpServer := api.NewServer(httpListenAddress, db)
 	go httpServer.Start()
 

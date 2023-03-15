@@ -17,25 +17,20 @@ import (
 // Returns a pointer to the database connection
 func ConnectToDB() *gorm.DB {
 	err := env.Load()
-	// Database information from environment variables
-	var (
-		host     = os.Getenv("DB_HOST")
-		port     = 5432
-		user     = os.Getenv("DB_USER")
-		password = os.Getenv("DB_PASSWORD")
-		dbname   = os.Getenv("DB_NAME")
-	)
 	if err != nil {
 		log.Fatalf("Error loading environment variables: %v", err)
 	}
-	// connection string for GORM PostgreSQL driver
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
-		host, user, password, dbname, port,
+	// Database information from environment variables
+	connectionString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
 	)
 
 	// Open database connection
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error opening database connection: %v", err)
 	}
