@@ -7,7 +7,7 @@ Simple HTTP web service which processes telemetries from MQTT server
 The service stores the telemetries from the MQTT server and enables [REST endpoints](#rest-endpoints) to browse through them via pagination.<br/>
 It also enables endpoint to get the list of the nearest bus telemetries for given position.
 
-See [how to run](#run) the service.
+See [how to run](#how-to-run-the-service-via-docker-compose) the service.
 
 ## Assumptions
 
