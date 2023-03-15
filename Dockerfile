@@ -10,9 +10,9 @@ COPY . .
 RUN go mod download
 
 # Build the Go application
-RUN go build -o app
+RUN go build -o abax-api
 
 EXPOSE ${HTTP_PORT}
 
 # Set the container command
-CMD ["./app"]
+CMD ["./abax-api"]
