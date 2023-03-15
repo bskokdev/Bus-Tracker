@@ -102,26 +102,35 @@ func handleGetNearestBuses(db *gorm.DB) Handler {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("GET /api/v1/buses/nearest")
 		// default page size & page
-		pageSize := 20
-		page := 1
-		// get lon and lat from query parameters and cast to f64
+		telemetryPage := 500
+
+		// handle query params & cast to f64
 		// THIS WOULD BE THE USER'S LOCATION
-		lat, _ := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
-		lon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
+		lat := r.URL.Query().Get("lat")
+		lon := r.URL.Query().Get("lon")
+		if lat == "" || lon == "" {
+			msg := "Missing query parameters for user position [lat/lon]"
+			http.Error(w, msg, http.StatusBadRequest)
+			log.Println(msg)
+			return
+		}
+
+		parsedLat, _ := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
+		parsedLon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
 
 		// get page of bus telemetries from the database
-		telemetries := make([]domain.BusTelemetry, pageSize)
-		err := getTelemetriesForPage(db, page, pageSize, "created_at desc", &telemetries)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			log.Printf("Error getting telemetries: %v", err)
+		telemetries := make([]domain.BusTelemetry, telemetryPage)
+		res := db.Limit(telemetryPage).Order("created_at desc").Find(&telemetries)
+		if res.Error != nil {
+			http.Error(w, "Can't read telemetries", http.StatusInternalServerError)
+			log.Printf("Error getting telemetries: %v", res.Error)
 			return
 		}
 
 		// Parse telemetries to BusDTOs
-		buses := make([]domain.BusDTO, 0, pageSize)
+		buses := make([]domain.BusDTO, 0, telemetryPage)
 		for _, telemetry := range telemetries {
-			buses = append(buses, parser.NewBusDTOFromTelemetry(telemetry, lat, lon))
+			buses = append(buses, parser.NewBusDTOFromTelemetry(telemetry, parsedLat, parsedLon))
 		}
 
 		// sort buses by distance from user
