@@ -23,7 +23,7 @@ Prior to building the service I had made the following assumptions.
 - GORM - ORM to handle database tables in Go (Automigrations enabled)
 - Docker
 
-## How to run the service via docker-compose {#run}
+## How to run the service via docker-compose
 
 The web service can be ran as a docker container specified by <b>docker-compose.yml file</b><br/>
 To run the web service via the docker-compose you are going to need .env file with the following variables.
