@@ -4,7 +4,7 @@
 
 Simple HTTP web service which processes telemetries from MQTT server
 [mqtt.hsl.fi](https://digitransit.fi/en/developers/apis/4-realtime-api/vehicle-positions/) written in Go<br/>
-The service stores the telemetries from the MQTT server and enables [REST endpoints](#endpoints) to browse through them via pagination.<br/>
+The service stores the telemetries from the MQTT server and enables [REST endpoints](#rest-endpoints) to browse through them via pagination.<br/>
 It also enables endpoint to get the list of the nearest bus telemetries for given position.
 
 See [how to run](#run) the service.
@@ -62,7 +62,7 @@ HTTP_PORT=3000
 
 To build the container run following command: `docker-compose up -d --build` <br/>
 
-## REST endpoints {#endpoints}
+## REST endpoints
 
 ### Get telemetries
 
