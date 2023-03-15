@@ -117,7 +117,6 @@ func handleGetNearestBuses(db *gorm.DB) Handler {
 
 		parsedLat, _ := strconv.ParseFloat(r.URL.Query().Get("lat"), 64)
 		parsedLon, _ := strconv.ParseFloat(r.URL.Query().Get("lon"), 64)
-
 		// get page of bus telemetries from the database
 		telemetries := make([]domain.BusTelemetry, telemetryPage)
 		res := db.Limit(telemetryPage).Order("created_at desc").Find(&telemetries)
