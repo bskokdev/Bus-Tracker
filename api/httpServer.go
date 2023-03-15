@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -25,7 +24,7 @@ type Server struct {
 // Creates server with address localhost:{address} and database connection
 func NewServer(address string, db *gorm.DB) *Server {
 	return &Server{
-		address: fmt.Sprintf(":%s", address),
+		address: address,
 		db:      db,
 	}
 }
@@ -35,7 +34,7 @@ type Handler = func(http.ResponseWriter, *http.Request)
 
 // Start starts the HTTP server and listens for requests
 func (s *Server) Start() error {
-	log.Println("Starting HTTP server on port " + s.address)
+	log.Println("Starting HTTP server on address " + s.address)
 	// Define routes
 	http.HandleFunc("/api/v1/buses/nearest", handleGetNearestBuses(s.db))
 	http.HandleFunc("/api/v1/telemetries", handleGetAllTelemetries(s.db))
