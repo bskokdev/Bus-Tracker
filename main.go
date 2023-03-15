@@ -21,12 +21,12 @@ const (
 )
 
 // Function to get the HTTP port from the environment variables
-func getHttpPort() string {
+func getHttpAddress() string {
 	err := env.Load()
 	if err != nil {
 		log.Fatalf("Error loading environment variables: %v", err)
 	}
-	return os.Getenv("HTTP_PORT")
+	return fmt.Sprintf("%s:%s", os.Getenv("HTTP_URL"), os.Getenv("HTTP_PORT"))
 }
 
 func main() {
@@ -54,8 +54,7 @@ func main() {
 	}
 
 	// Start the HTTP server in a separate goroutine (similiar to a thread)
-	httpListenAddress := fmt.Sprintf("0.0.0.0:%s", getHttpPort())
-	httpServer := api.NewServer(httpListenAddress, db)
+	httpServer := api.NewServer(getHttpAddress(), db)
 	go httpServer.Start()
 
 	<-c
