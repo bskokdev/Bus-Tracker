@@ -22,6 +22,7 @@ Prior to building the service I had made the following assumptions.
 - Go
 - GORM - ORM to handle database tables in Go (Automigrations enabled)
 - Docker
+- Postgres
 
 ## How to run the service via docker-compose
 
