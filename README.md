@@ -26,7 +26,7 @@ Prior to building the service I had made the following assumptions.
 
 ## How to run the service via docker-compose
 
-The web service can be ran as a docker container specified by <b>docker-compose.yml file</b><br/>
+The web service can be started as a docker container specified by <b>docker-compose.yml file</b><br/>
 To run the web service via the docker-compose you are going to need .env file with the following variables.
 
 ### Environmental variables
@@ -91,6 +91,6 @@ To build the container run following command: `docker-compose up -d --build` <br
 ### Testing
 
 I have also added a new unit tests to test the most crutial parts of the application - calculating the distance and parsers.
-The tests are ran automatically upon Dockefile build.
+The tests run automatically upon Dockefile build.
 You can also run them via terminal by this command.
-`go test ./...`
+`go test ./..a`
