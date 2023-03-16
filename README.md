@@ -90,5 +90,7 @@ To build the container run following command: `docker-compose up -d --build` <br
 
 ### Testing
 
-I have also added a new unit tests to test the most crutial parts of the application - calculating the distance between 2 latitudes and longitudes and page offset for the database queries.
+I have also added a new unit tests to test the most crutial parts of the application - calculating the distance and parsers.
+The tests are ran automatically upon Dockefile build.
+You can also run them via terminal by this command.
 `go test ./...`
