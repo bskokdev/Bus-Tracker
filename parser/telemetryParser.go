@@ -1,31 +1,21 @@
 package parser
 
 import (
-	"encoding/json"
-	"log"
-
 	"strconv"
 	"strings"
 
 	domain "github.com/skokcmd/Abax-transport/domain"
 	util "github.com/skokcmd/Abax-transport/util"
 
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
 )
 
 // Converts MQTT message to BusTelemetry struct
-func ParseMessageToBusTelemetry(msg mqtt.Message) (*domain.BusTelemetry, error) {
+func ParseMessageToBusTelemetry(topic string, payload domain.BusTelemetryPayload) (*domain.BusTelemetry, error) {
 	var telemetry domain.BusTelemetry
-	var payload domain.BusTelemetryPayload
+	// var payload domain.BusTelemetryPayload
 
-	topicParts := strings.Split(msg.Topic(), "/")
-
-	// Unpack payload into BusTelemetryPayload struct
-	err := json.Unmarshal(msg.Payload(), &payload)
-	if err != nil {
-		log.Printf("Failed to unmarshal message: %s\n", err)
-	}
+	topicParts := strings.Split(topic, "/")
 
 	// parse msg topic to get topic values
 	telemetry.ID = uuid.New()
