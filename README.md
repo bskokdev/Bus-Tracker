@@ -4,10 +4,10 @@
 
 Simple HTTP web service which processes telemetries from MQTT server
 [mqtt.hsl.fi](https://digitransit.fi/en/developers/apis/4-realtime-api/vehicle-positions/) written in Go<br/>
-The service stores the telemetries from the MQTT server and enables [REST endpoints](#endpoints) to browse through them via pagination.<br/>
+The service stores the telemetries from the MQTT server and enables [REST endpoints](#rest-endpoints) to browse through them via pagination.<br/>
 It also enables endpoint to get the list of the nearest bus telemetries for given position.
 
-See [how to run](#run) the service.
+See [how to run](#how-to-run-the-service-via-docker-compose) the service.
 
 ## Assumptions
 
@@ -23,7 +23,7 @@ Prior to building the service I had made the following assumptions.
 - GORM - ORM to handle database tables in Go (Automigrations enabled)
 - Docker
 
-## How to run the service via docker-compose {#run}
+## How to run the service via docker-compose
 
 The web service can be ran as a docker container specified by <b>docker-compose.yml file</b><br/>
 To run the web service via the docker-compose you are going to need .env file with the following variables.
@@ -62,7 +62,7 @@ HTTP_PORT=3000
 
 To build the container run following command: `docker-compose up -d --build` <br/>
 
-## REST endpoints {#endpoints}
+## REST endpoints
 
 ### Get telemetries
 
