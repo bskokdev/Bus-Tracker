@@ -11,6 +11,7 @@ RUN go mod download
 
 # Build the Go application
 RUN go build -o abax-api
+RUN go test ./...
 
 EXPOSE ${HTTP_PORT}
 
