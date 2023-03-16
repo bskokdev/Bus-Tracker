@@ -33,6 +33,7 @@ func NewServer(address string, db *gorm.DB) *Server {
 type Handler = func(http.ResponseWriter, *http.Request)
 
 // Start starts the HTTP server and listens for requests
+// Api version could be moved to a config file or environment variable
 func (s *Server) Start() error {
 	log.Println("Starting HTTP server on address " + s.address)
 	// Define routes
