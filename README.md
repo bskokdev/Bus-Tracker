@@ -1,5 +1,5 @@
 # Bus tracker service using MQTT broker
-
+![Diagram](https://github.com/skokcmd/Abax-Transport/blob/main/abax-transport-diagram.png?raw=true)
 ## Description
 
 Simple HTTP web service which processes telemetries from MQTT server
